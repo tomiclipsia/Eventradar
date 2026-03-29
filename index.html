@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#1e40af"/>
+<title>EventRadar Leipzig</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#1e293b;font-size:14px}
+.header{background:#1e40af;color:#fff;padding:13px 15px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 6px #0003}
+.h-icon{font-size:22px}
+.h-text{flex:1}
+.h-title{font-size:16px;font-weight:700}
+.h-sub{font-size:11px;opacity:.7}
+.stale-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;text-decoration:none;display:inline-block}
+.stale-btn:active{background:rgba(255,255,255,.35)}
+.legend{display:flex;gap:6px;padding:9px 13px;flex-wrap:wrap;background:#fff;border-bottom:1px solid #e2e8f0}
+.lpill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.stale-banner{background:#fef3c7;border-bottom:1px solid #fde68a;padding:8px 13px;font-size:12px;color:#92400e;display:flex;align-items:center;gap:6px}
+.content{padding:12px 13px;max-width:640px;margin:0 auto}
+.day-group{margin-bottom:11px}
+.day-hdr{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;padding:3px 2px 5px;display:flex;align-items:baseline;gap:6px}
+.today-pill{background:#2563eb;color:#fff;font-size:9px;padding:1px 7px;border-radius:10px;text-transform:none;letter-spacing:0;font-weight:700}
+.ev-card{background:#fff;border-radius:12px;border-left:4px solid;box-shadow:0 1px 2px #0001;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.ev-icon{font-size:20px;flex-shrink:0}
+.ev-body{flex:1;min-width:0}
+.ev-title{font-weight:600;font-size:13px;color:#1e293b;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-tags{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.vtag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.ttag{font-size:10px;padding:2px 7px;border-radius:6px;background:#f1f5f9;color:#64748b}
+.ttime{font-size:11px;color:#64748b}
+.pbadge{flex-shrink:0;font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;text-align:center}
+.plabel{font-size:9px;font-weight:600;opacity:.75;display:block}
+.no-ev{background:#fff;border-radius:9px;padding:9px 12px;font-size:12px;color:#94a3b8;border:1px dashed #e2e8f0;text-align:center}
+.ts{text-align:center;font-size:10px;color:#94a3b8;padding:8px 0 18px}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="h-icon">📍</span>
+  <div class="h-text">
+    <div class="h-title">EventRadar Leipzig</div>
+    <div class="h-sub" id="h-sub">Nächste 14 Tage · Sportforum</div>
+  </div>
+  <a class="stale-btn" href="https://www.quarterback-immobilien-arena.de/events-tickets/events" target="_blank">Alle Events →</a>
+</div>
+
+<div class="legend">
+  <div class="lpill" style="background:#dcfce7;color:#15803d">🏟 QB Arena</div>
+  <div class="lpill" style="background:#fee2e2;color:#dc2626">⚽ Red Bull Arena</div>
+  <div class="lpill" style="background:#fef3c7;color:#d97706">🎪 Festwiese</div>
+</div>
+
+<div id="stale-banner" class="stale-banner" style="display:none">
+  ⚠ Daten vom <span id="stale-date"></span> — <a href="https://www.quarterback-immobilien-arena.de/events-tickets/events" target="_blank" style="color:#92400e;font-weight:700">QB Arena Website öffnen</a> für aktuelle Events
+</div>
+
+<div class="content" id="content"></div>
+<div class="ts" id="ts"></div>
+
+<script>
+const VENUES = {
+  "QB Arena":          {color:"#15803d",bg:"#dcfce7",border:"#16a34a",icon:"🏟"},
+  "Red Bull Arena":    {color:"#dc2626",bg:"#fee2e2",border:"#dc2626",icon:"⚽"},
+  "Festwiese Leipzig": {color:"#d97706",bg:"#fef3c7",border:"#d97706",icon:"🎪"},
+};
+const PARK = {
+  hoch:    {label:"Hoch ⚠",  bg:"#fee2e2",color:"#991b1b"},
+  mittel:  {label:"Mittel",  bg:"#fef3c7",color:"#92400e"},
+  niedrig: {label:"Niedrig", bg:"#dcfce7",color:"#14532d"},
+  cancel:  {label:"–",       bg:"#f3f4f6",color:"#9ca3af"},
+};
+const ICONS = {Konzert:"🎵",Sport:"⚽",Show:"🎭",Comedy:"🎤",Musical:"🎼",Kinder:"🎪",Messe:"📋",Tanz:"💃",Ausstellung:"🖼️",Fest:"🎉"};
+const WOTAGE = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+const MONATE = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+
+// ── Events eingebettet (Stand: 29.03.2026) ──────────────────
+const EMBEDDED_EVENTS = [
+  {date:"2026-03-29",title:"SC DHfK - ThSV Eisenach",type:"Sport",venue:"QB Arena",einlass:"13:30",beginn:"15:00",ende:"16:30",cancelled:false},
+  {date:"2026-03-31",title:"Beat it!",type:"Show",venue:"QB Arena",einlass:"19:00",beginn:"20:00",ende:"22:20",cancelled:false},
+  {date:"2026-04-02",title:"7vs.Wild",type:"Show",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"22:30",cancelled:true},
+  {date:"2026-04-08",title:"Howard Carpendale",type:"Konzert",venue:"QB Arena",einlass:"18:00",beginn:"20:00",ende:"22:40",cancelled:false},
+  {date:"2026-04-09",title:"SC DHfK - FA! Göppingen",type:"Sport",venue:"QB Arena",einlass:"17:30",beginn:"19:00",ende:"20:30",cancelled:false},
+  {date:"2026-04-11",title:"Schlagernacht des Jahres 2026",type:"Konzert",venue:"QB Arena",einlass:"16:30",beginn:"18:00",ende:"00:00",cancelled:false},
+  {date:"2026-04-12",title:"singOUT",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"23:00",cancelled:false},
+  {date:"2026-04-13",title:"Eros Ramazotti",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"20:00",ende:"23:00",cancelled:false},
+  {date:"2026-04-14",title:"Falco Meets Amadeus",type:"Musical",venue:"QB Arena",einlass:"19:00",beginn:"20:00",ende:"22:45",cancelled:false},
+];
+const EMBEDDED_DATE = "2026-03-29";
+
+function parkdruck(ev) {
+  if (ev.cancelled) return "cancel";
+  const h = parseInt((ev.beginn||"00:00").split(":")[0]);
+  const abends = h >= 17, we = [0,6].includes(new Date(ev.date).getDay());
+  if (ev.venue==="Red Bull Arena") return "hoch";
+  if (ev.venue==="Festwiese Leipzig") return (abends||we)?"hoch":"mittel";
+  if (["Konzert","Show","Musical","Comedy"].includes(ev.type)) return abends?"hoch":"mittel";
+  if (ev.type==="Sport") return (abends||we)?"hoch":"mittel";
+  return abends?"mittel":"niedrig";
+}
+
+function render(events, dataDate) {
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Show stale banner if data is older than 2 days
+  const dataDt = new Date(dataDate);
+  const daysDiff = Math.floor((today - dataDt) / 86400000);
+  if (daysDiff > 2) {
+    document.getElementById("stale-banner").style.display = "flex";
+    document.getElementById("stale-date").textContent = dataDt.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  }
+
+  let html = "";
+  for (let i = 0; i < 14; i++) {
+    const day = new Date(today); day.setDate(day.getDate() + i);
+    const ds = day.toISOString().slice(0,10);
+    const isToday = i === 0;
+    const dow = WOTAGE[day.getDay()];
+    const label = `${day.getDate()}. ${MONATE[day.getMonth()]}`;
+    const dayEvs = events.filter(e => e.date === ds);
+
+    html += `<div class="day-group">
+      <div class="day-hdr">${dow}, ${label}${isToday?' <span class="today-pill">Heute</span>':''}</div>`;
+
+    if (dayEvs.length === 0) {
+      html += `<div class="no-ev">Kein Event</div>`;
+    } else {
+      dayEvs.forEach(ev => {
+        const vc = VENUES[ev.venue] || {color:"#64748b",bg:"#f1f5f9",border:"#94a3b8",icon:"📍"};
+        const p = parkdruck(ev), pk = PARK[p];
+        const icon = ICONS[ev.type] || "📅";
+        const timeStr = ev.beginn ? (ev.einlass ? `Einlass ${ev.einlass} · ` : "") + `Beginn ${ev.beginn} Uhr` : "";
+        html += `<div class="ev-card" style="border-left-color:${vc.border};opacity:${ev.cancelled?.6:1}">
+          <span class="ev-icon">${icon}</span>
+          <div class="ev-body">
+            <div class="ev-title" style="${ev.cancelled?'text-decoration:line-through;color:#94a3b8':''}">${ev.title}</div>
+            <div class="ev-tags">
+              <span class="vtag" style="background:${vc.bg};color:${vc.color}">${vc.icon} ${ev.venue}</span>
+              <span class="ttag">${ev.type}</span>
+              ${timeStr?`<span class="ttime">🕐 ${timeStr}</span>`:''}
+            </div>
+          </div>
+          <div class="pbadge" style="background:${pk.bg};color:${pk.color}">${pk.label}<span class="plabel">Parkdruck</span></div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  }
+
+  document.getElementById("content").innerHTML = html;
+  document.getElementById("ts").textContent = `Datenstand: ${new Date(dataDate).toLocaleDateString("de-DE")} · Neue Version bei Claude anfragen`;
+}
+
+// Load from localStorage or use embedded
+function init() {
+  try {
+    const cached = localStorage.getItem("evradar_v4");
+    if (cached) {
+      const p = JSON.parse(cached);
+      render(p.events, p.date);
+      return;
+    }
+  } catch {}
+  render(EMBEDDED_EVENTS, EMBEDDED_DATE);
+}
+
+init();
+</script>
+</body>
+</html>
