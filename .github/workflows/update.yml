@@ -2,6 +2,34 @@ name: Update EventRadar
 
 on:
   schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scrape & update
+        run: python scraper.py
+      - name: Commit & push
+        run: |
+          git config user.name "EventRadar Bot"
+          git config user.email "bot@eventradar"
+          git add index.html
+          git diff --staged --quiet || git commit -m "🔄 Events aktualisiert $(date '+%d.%m.%Y')"
+          git pushname: Update EventRadar
+
+on:
+  schedule:
     - cron: "0 4 * * 1"   # Jeden Montag 06:00 Uhr DE-Zeit
   workflow_dispatch:        # Manueller Start möglich
 
