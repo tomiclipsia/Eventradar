@@ -80,18 +80,9 @@ const MONATE=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov"
 // ── Embedded events (Stand: 02.04.2026) ──────────────────────
 // AUTO-UPDATE: scraper.py replaces this block every Monday via GitHub Actions
 const EMBEDDED_EVENTS = [
-  {date:"2026-04-02",title:"7vs.Wild",type:"Show",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"22:30",cancelled:true,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/7vswild/862"},
-  {date:"2026-04-08",title:"Howard Carpendale",type:"Konzert",venue:"QB Arena",einlass:"18:00",beginn:"20:00",ende:"22:40",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/howard-carpendale-1/864"},
-  {date:"2026-04-09",title:"SC DHfK - FA! Göppingen",type:"Sport",venue:"QB Arena",einlass:"17:30",beginn:"19:00",ende:"20:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/sc-dhfk-fa-goeppingen/741"},
-  {date:"2026-04-11",title:"Schlagernacht des Jahres 2026",type:"Konzert",venue:"QB Arena",einlass:"16:30",beginn:"18:00",ende:"00:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/schlagernacht-des-jahres-2026/919"},
-  {date:"2026-04-12",title:"singOUT",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"23:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/singout/960"},
-  {date:"2026-04-13",title:"Eros Ramazotti",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"20:00",ende:"23:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/eros-ramazotti/1022"},
-  {date:"2026-04-14",title:"Falco Meets Amadeus",type:"Musical",venue:"QB Arena",einlass:"19:00",beginn:"20:00",ende:"22:45",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/falco-meets-amadeus/954"},
-  {date:"2026-04-15",title:"Santiano",type:"Konzert",venue:"QB Arena",einlass:"18:00",beginn:"20:00",ende:"22:25",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/santiano/921"},
-  {date:"2026-04-16",title:"SC DHfK - VfL Gummersbach",type:"Sport",venue:"QB Arena",einlass:"17:30",beginn:"19:00",ende:"20:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/sc-dhfk-vfl-gummersbach/963"},
-  {date:"2026-04-17",title:"Mario Barth",type:"Comedy",venue:"QB Arena",einlass:"18:30",beginn:"20:00",ende:"22:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/mario-barth-1/889"},
+
 ];
-const EMBEDDED_DATE = "2026-04-02";
+const EMBEDDED_DATE = "2026-04-05";
 
 function parkdruck(ev) {
   if (ev.cancelled) return "cancel";
