@@ -46,21 +46,21 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#1e
   </div>
   <a class="hbtn" href="https://www.quarterback-immobilien-arena.de/events-tickets/events" target="_blank">Alle Events →</a>
 </div>
-
+ 
 <div class="legend">
   <div class="lpill" style="background:#dcfce7;color:#15803d">🏟 QB Arena</div>
   <div class="lpill" style="background:#fee2e2;color:#dc2626">⚽ Red Bull Arena</div>
   <div class="lpill" style="background:#fef3c7;color:#d97706">🎪 Festwiese</div>
 </div>
-
+ 
 <div id="stale-banner" class="stale-banner" style="display:none">
   ⚠ Daten vom <span id="stale-date"></span> —
   <a href="https://www.quarterback-immobilien-arena.de/events-tickets/events" target="_blank" style="color:#92400e;font-weight:700">QB Arena Website</a>
 </div>
-
+ 
 <div class="content" id="content"></div>
 <div class="ts" id="ts"></div>
-
+ 
 <script>
 const VENUES = {
   "QB Arena":          {color:"#15803d",bg:"#dcfce7",border:"#16a34a",icon:"🏟"},
@@ -76,14 +76,23 @@ const PARK = {
 const ICONS={Konzert:"🎵",Sport:"⚽",Show:"🎭",Comedy:"🎤",Musical:"🎼",Kinder:"🎪",Messe:"📋",Tanz:"💃",Ausstellung:"🖼️",Fest:"🎉"};
 const WOTAGE=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 const MONATE=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
-
+ 
 // ── Embedded events (Stand: 02.04.2026) ──────────────────────
 // AUTO-UPDATE: scraper.py replaces this block every Monday via GitHub Actions
 const EMBEDDED_EVENTS = [
-
+  {date:"2026-04-02",title:"7vs.Wild",type:"Show",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"22:30",cancelled:true,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/7vswild/862"},
+  {date:"2026-04-08",title:"Howard Carpendale",type:"Konzert",venue:"QB Arena",einlass:"18:00",beginn:"20:00",ende:"22:40",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/howard-carpendale-1/864"},
+  {date:"2026-04-09",title:"SC DHfK - FA! Göppingen",type:"Sport",venue:"QB Arena",einlass:"17:30",beginn:"19:00",ende:"20:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/sc-dhfk-fa-goeppingen/741"},
+  {date:"2026-04-11",title:"Schlagernacht des Jahres 2026",type:"Konzert",venue:"QB Arena",einlass:"16:30",beginn:"18:00",ende:"00:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/schlagernacht-des-jahres-2026/919"},
+  {date:"2026-04-12",title:"singOUT",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"19:30",ende:"23:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/singout/960"},
+  {date:"2026-04-13",title:"Eros Ramazotti",type:"Konzert",venue:"QB Arena",einlass:null,beginn:"20:00",ende:"23:00",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/eros-ramazotti/1022"},
+  {date:"2026-04-14",title:"Falco Meets Amadeus",type:"Musical",venue:"QB Arena",einlass:"19:00",beginn:"20:00",ende:"22:45",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/falco-meets-amadeus/954"},
+  {date:"2026-04-15",title:"Santiano",type:"Konzert",venue:"QB Arena",einlass:"18:00",beginn:"20:00",ende:"22:25",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/santiano/921"},
+  {date:"2026-04-16",title:"SC DHfK - VfL Gummersbach",type:"Sport",venue:"QB Arena",einlass:"17:30",beginn:"19:00",ende:"20:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/sc-dhfk-vfl-gummersbach/963"},
+  {date:"2026-04-17",title:"Mario Barth",type:"Comedy",venue:"QB Arena",einlass:"18:30",beginn:"20:00",ende:"22:30",cancelled:false,url:"https://www.quarterback-immobilien-arena.de/events-tickets/eventdetail/event/mario-barth-1/889"},
 ];
-const EMBEDDED_DATE = "2026-04-05";
-
+const EMBEDDED_DATE = "2026-04-02";
+ 
 function parkdruck(ev) {
   if (ev.cancelled) return "cancel";
   const h = parseInt((ev.beginn||"00:00").split(":")[0]);
@@ -94,7 +103,7 @@ function parkdruck(ev) {
   if (ev.type==="Sport") return (abends||we)?"hoch":"mittel";
   return abends?"mittel":"niedrig";
 }
-
+ 
 // ── Local date helpers (no UTC shift) ────────────────────────
 function localDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -104,7 +113,7 @@ function parseLocalDate(s) {
   const [y,m,d] = s.split("-").map(Number);
   return new Date(y, m-1, d);
 }
-
+ 
 function render(events, dataDate) {
   const today = new Date(); today.setHours(0,0,0,0);
   const dataDt = parseLocalDate(dataDate);
@@ -113,7 +122,7 @@ function render(events, dataDate) {
     document.getElementById("stale-banner").style.display = "flex";
     document.getElementById("stale-date").textContent = dataDt.toLocaleDateString("de-DE");
   }
-
+ 
   let html = "";
   for (let i = 0; i < 14; i++) {
     const day = new Date(today); day.setDate(day.getDate() + i);
@@ -122,10 +131,10 @@ function render(events, dataDate) {
     const dow = WOTAGE[day.getDay()];
     const label = `${day.getDate()}. ${MONATE[day.getMonth()]}`;
     const dayEvs = events.filter(e => e.date === ds);
-
+ 
     html += `<div class="day-group">
       <div class="day-hdr">${dow}, ${label}${isToday?' <span class="today-pill">Heute</span>':''}</div>`;
-
+ 
     if (dayEvs.length === 0) {
       html += `<div class="no-ev">Kein Event</div>`;
     } else {
@@ -153,12 +162,12 @@ function render(events, dataDate) {
     }
     html += `</div>`;
   }
-
+ 
   document.getElementById("content").innerHTML = html;
   const age = daysDiff === 0 ? "heute" : `vor ${daysDiff} Tag${daysDiff>1?"en":""}`;
   document.getElementById("ts").textContent = `Datenstand: ${dataDt.toLocaleDateString("de-DE")} (${age}) · Automatisch aktualisiert via GitHub Actions`;
 }
-
+ 
 function init() {
   try {
     const c = localStorage.getItem("evradar_v5");
@@ -170,3 +179,4 @@ init();
 </script>
 </body>
 </html>
+ 
